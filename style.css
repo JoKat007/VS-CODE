@@ -71,51 +71,175 @@ html, body {
     50% { transform: translateY(-15px) }
 }
 
-/* card styling (initially hidden inside envelope). The card is a
-   3D object that will rotate on the X axis. We start it flat and
-   reveal it with an animation once the envelope opens. */
-.card {
-    width: 190px;
-    height: 260px;
+/* card-container: wrapper for the entire 3D card to allow full X/Y rotation */
+.card-container {
     position: absolute;
     top: 130px; /* just below envelope body */
     left: 50%;
-    transform: translate(-50%, 0) rotateX(90deg); /* start flat */
+    transform: translate(-50%, 0);
     transform-style: preserve-3d;
-    background: #fff;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-    border-radius: 6px;
-    transition: transform 0.6s ease;
     display: none; /* hide until envelope opened */
 }
 
-.card.show {
+.card-container.show {
     display: block;
 }
 
-.card .front, .card .inside {
+/* 3D card structure: folded A4 portrait card with two panels connected by hinge */
+.card {
+    width: 190px;
+    height: 260px;
+    position: relative;
+    transform-style: preserve-3d;
+    cursor: grab;
+}
+
+.card.dragging {
+    cursor: grabbing;
+}
+
+/* each panel represents a page of the card */
+.panel {
     position: absolute;
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
+    border: 3px solid gold; /* golden border as requested */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* front panel: the cover of the card */
+.front-panel {
+    transform: translateZ(0);
+    background: linear-gradient(135deg, #ffe0b2 0%, #ffccbc 100%);
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
 }
 
-.card .front {
-    background: linear-gradient(135deg, #ffe0b2 0%, #ffccbc 100%);
-    border-radius: 6px;
-    transform: rotateX(0deg);
-}
-
-.card .inside {
-    background: #ffffff;
-    transform: rotateX(180deg);
+.front-content h1 {
+    font-size: 1.5rem;
     color: #333;
-    font-size: 1rem;
     text-align: center;
+}
+
+/* inside panel: the inner page, connected via hinge (rotates around left edge) */
+.inside-panel {
+    transform: translateZ(0) rotateY(0deg); /* starts closed */
+    transform-origin: left center; /* hinge at left edge */
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.inside-panel.open {
+    transform: translateZ(0) rotateY(-180deg); /* fully open */
+}
+
+/* pop-up cake: 3D element that expands when card opens */
+.pop-up-cake {
+    position: relative;
+    width: 120px;
+    height: 80px;
+    transform: scale(0) translateZ(0); /* starts collapsed */
+    transform-origin: center bottom;
+    transition: transform 0.8s ease;
+}
+
+.inside-panel.open .pop-up-cake {
+    transform: scale(1) translateZ(20px); /* expands outward */
+}
+
+/* cake layers: stacked rings */
+.cake-layer {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid #d32f2f; /* red accent */
+}
+
+.cake-layer.bottom {
+    width: 100px;
+    height: 30px;
+    background: linear-gradient(to bottom, #8d6e63 0%, #5d4037 100%); /* brown */
+    bottom: 0;
+    left: 10px;
+}
+
+.cake-layer.middle {
+    width: 80px;
+    height: 25px;
+    background: #ffffff; /* white */
+    bottom: 25px;
+    left: 15px;
+}
+
+.cake-layer.top {
+    width: 60px;
+    height: 20px;
+    background: #ffffff;
+    bottom: 45px;
+    left: 20px;
+}
+
+/* decorations on the cake */
+.decoration {
+    position: absolute;
+}
+
+.decoration.candle {
+    width: 4px;
+    height: 20px;
+    background: #ffeb3b;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+.decoration.candle::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -2px;
+    width: 8px;
+    height: 8px;
+    background: #ff5722;
+    border-radius: 50%;
+}
+
+.decoration.balloon {
+    width: 15px;
+    height: 20px;
+    background: #e91e63;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    top: 10px;
+}
+
+.decoration.balloon.left {
+    left: 10px;
+}
+
+.decoration.balloon.right {
+    right: 10px;
+}
+
+.decoration.confetti {
+    width: 10px;
+    height: 10px;
+    background: #ff9800;
+    transform: rotate(45deg);
+    top: 5px;
+    right: 20px;
+}
+
+.message {
+    margin-top: 10px;
+    text-align: center;
+    color: #333;
+    font-size: 0.9rem;
 }
 
 /* responsive adjustments */

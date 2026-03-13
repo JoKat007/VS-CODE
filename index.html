@@ -19,13 +19,37 @@
             <div class="body"></div>
         </div>
 
-        <!-- birthday card hidden inside the envelope until it opens -->
-        <div class="card" id="card">
-            <div class="front">
-                <h1>Happy Birthday!</h1>
-            </div>
-            <div class="inside">
-                <p>Wishing you a day filled with love, laughter, and cake!</p>
+        <!-- container for the 3D card to allow full rotation -->
+        <div class="card-container" id="cardContainer">
+            <!-- 3D folded birthday card -->
+            <div class="card" id="card">
+                <!-- front panel of the card -->
+                <div class="panel front-panel">
+                    <div class="front-content">
+                        <h1>Happy Birthday!</h1>
+                    </div>
+                </div>
+                <!-- inside panel of the card (connected via hinge) -->
+                <div class="panel inside-panel">
+                    <div class="inside-content">
+                        <!-- 3D pop-up birthday cake -->
+                        <div class="pop-up-cake" id="cake">
+                            <!-- cake layers (bottom to top) -->
+                            <div class="cake-layer bottom"></div>
+                            <div class="cake-layer middle"></div>
+                            <div class="cake-layer top"></div>
+                            <!-- decorative elements -->
+                            <div class="decoration candle"></div>
+                            <div class="decoration balloon left"></div>
+                            <div class="decoration balloon right"></div>
+                            <div class="decoration confetti"></div>
+                        </div>
+                        <!-- birthday message -->
+                        <div class="message">
+                            <p>Wishing you a day filled with love, laughter, and cake!</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

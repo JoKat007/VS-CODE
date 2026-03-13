@@ -1,11 +1,19 @@
 // Grab references to interactive elements
 const envelope = document.getElementById('envelope');
+const cardContainer = document.getElementById('cardContainer');
 const card = document.getElementById('card');
+const insidePanel = document.querySelector('.inside-panel');
 
-// State for dragging rotation
-let isDragging = false;
+// State for dragging card rotation (X and Y axes)
+let isDraggingCard = false;
+let lastX = 0;
 let lastY = 0;
-let rotationX = 90; // card starts flat (rotateX(90deg))
+let rotationX = 0; // card rotation on X-axis
+let rotationY = 0; // card rotation on Y-axis
+
+// State for dragging hinge (opening/closing the card)
+let isDraggingHinge = false;
+let hingeAngle = 0; // 0° closed, 180° open
 
 // --- Envelope opening animation ---
 envelope.addEventListener('click', () => {
@@ -14,57 +22,113 @@ envelope.addEventListener('click', () => {
 
     envelope.classList.add('open');
 
-    // after the flap opens we bring the card into view with a pop animation
-    // use GSAP to keep it smooth and callback-based
-    gsap.to(card, {
+    // slide the card container out of the envelope
+    gsap.to(cardContainer, {
         duration: 0.8,
         display: 'block',
-        opacity: 1,
         y: -50,
-        rotateX: 0,
         ease: 'back.out(1.7)',
         onStart: () => {
-            card.classList.add('show');
+            cardContainer.classList.add('show');
+        },
+        onComplete: () => {
+            // after sliding out, auto-open the card slowly
+            autoOpenCard();
         }
     });
 });
 
-// --- card 3D rotation logic ---
+// Function to auto-open the card (hinge animation)
+function autoOpenCard() {
+    gsap.to(insidePanel, {
+        duration: 1.5,
+        rotationY: -180,
+        ease: 'power2.out',
+        onUpdate: () => {
+            hingeAngle = Math.abs(gsap.getProperty(insidePanel, 'rotationY'));
+            // update cake expansion based on hinge
+            updateCakeExpansion();
+        },
+        onComplete: () => {
+            insidePanel.classList.add('open');
+        }
+    });
+}
+
+// Function to update pop-up cake expansion based on hinge angle
+function updateCakeExpansion() {
+    const cake = document.getElementById('cake');
+    const expansion = hingeAngle / 180; // 0 to 1
+    cake.style.transform = `scale(${expansion}) translateZ(${expansion * 20}px)`;
+}
+
+// --- Card interaction: rotation and hinge control ---
+// Start drag: determine if dragging card or hinge
 function startDrag(e) {
-    isDragging = true;
-    lastY = e.clientY || e.touches[0].clientY;
-    // prevent text selection / default touch behavior
+    const target = e.target;
+    if (target.closest('.inside-panel')) {
+        // dragging on inside panel: control hinge
+        isDraggingHinge = true;
+        lastY = e.clientY || e.touches[0].clientY;
+    } else if (target.closest('.card')) {
+        // dragging on card (but not inside): rotate whole card
+        isDraggingCard = true;
+        lastX = e.clientX || e.touches[0].clientX;
+        lastY = e.clientY || e.touches[0].clientY;
+        card.classList.add('dragging');
+    }
     e.preventDefault();
 }
 
+// During drag
 function drag(e) {
-    if (!isDragging) return;
-    const currentY = e.clientY || e.touches[0].clientY;
-    const deltaY = currentY - lastY;
-    lastY = currentY;
-    rotationX += deltaY * 0.5; // sensitivity
-    // constrain rotation to avoid flipping upside down completely
-    if (rotationX > 360) rotationX -= 360;
-    if (rotationX < -360) rotationX += 360;
-    card.style.transform = `translate(-50%, 0) rotateX(${rotationX}deg)`;
+    if (isDraggingHinge) {
+        const currentY = e.clientY || e.touches[0].clientY;
+        const deltaY = currentY - lastY;
+        lastY = currentY;
+        hingeAngle += deltaY * 0.5; // sensitivity
+        hingeAngle = Math.max(0, Math.min(180, hingeAngle)); // clamp 0-180
+        insidePanel.style.transform = `translateZ(0) rotateY(${-hingeAngle}deg)`;
+        updateCakeExpansion();
+        if (hingeAngle > 90) {
+            insidePanel.classList.add('open');
+        } else {
+            insidePanel.classList.remove('open');
+        }
+    } else if (isDraggingCard) {
+        const currentX = e.clientX || e.touches[0].clientX;
+        const currentY = e.clientY || e.touches[0].clientY;
+        const deltaX = currentX - lastX;
+        const deltaY = currentY - lastY;
+        lastX = currentX;
+        lastY = currentY;
+        rotationY += deltaX * 0.5;
+        rotationX -= deltaY * 0.5; // invert for natural feel
+        cardContainer.style.transform = `translate(-50%, 0) rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
+    }
     e.preventDefault();
 }
 
+// Stop drag
 function stopDrag() {
-    isDragging = false;
+    isDraggingCard = false;
+    isDraggingHinge = false;
+    card.classList.remove('dragging');
 }
 
-// attach both mouse and touch event listeners
+// Attach event listeners for mouse and touch
 card.addEventListener('mousedown', startDrag);
 document.addEventListener('mousemove', drag);
 document.addEventListener('mouseup', stopDrag);
 
-card.addEventListener('touchstart', startDrag, {passive:false});
-document.addEventListener('touchmove', drag, {passive:false});
+card.addEventListener('touchstart', startDrag, {passive: false});
+document.addEventListener('touchmove', drag, {passive: false});
 document.addEventListener('touchend', stopDrag);
 
-// optional: reset rotation when double-clicked
+// Optional: double-click to reset rotations
 card.addEventListener('dblclick', () => {
     rotationX = 0;
-    card.style.transform = `translate(-50%, 0) rotateX(0deg)`;
+    rotationY = 0;
+    cardContainer.style.transform = `translate(-50%, 0) rotateX(0deg) rotateY(0deg)`;
+    // also reset hinge if wanted, but maybe not
 });

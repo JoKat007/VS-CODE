@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Birthday Card</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- GSAP for smooth animation (optional but allowed) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.2/gsap.min.js"></script>
+</head>
+<body>
+    <!-- Wrapper to help center everything and provide perspective for 3D transforms -->
+    <div class="scene">
+        <!-- sealed envelope (clickable) -->
+        <div class="envelope" id="envelope">
+            <!-- top flap that will rotate when opened -->
+            <div class="flap"></div>
+            <!-- body of the envelope -->
+            <div class="body"></div>
+        </div>
+
+        <!-- birthday card hidden inside the envelope until it opens -->
+        <div class="card" id="card">
+            <div class="front">
+                <h1>Happy Birthday!</h1>
+            </div>
+            <div class="inside">
+                <p>Wishing you a day filled with love, laughter, and cake!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+/* global resets */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #fce4ec 0%, #e1f5fe 100%);
+    overflow: hidden;
+}
+
+/* wrapper provides perspective for 3D
+   centering so that both envelope and card sit in the middle */
+.scene {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    perspective: 800px; /* gives depth to 3d card */
+    width: 300px;
+    height: 400px;
+}
+
+/* Envelope styling - the sealed envelope shown on the homepage
+   uses a floating animation to draw attention. When clicked the flap
+   rotates and reveals the card inside. */
+.envelope {
+    width: 200px;
+    height: 120px;
+    position: relative;
+    cursor: pointer;
+    transform-style: preserve-3d; /* allow 3D transforms on children */
+    animation: float 3s ease-in-out infinite;
+    /* keep it above card initially */
+    z-index: 2;
+}
+
+.envelope .body {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.envelope .flap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: #fafafa;
+    border-bottom: 2px solid #ddd;
+    transform-origin: top center;
+    transition: transform 0.8s ease;
+    /* give the flap a little shadow to show depth */
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
+
+.envelope.open .flap {
+    transform: rotateX(-180deg);
+}
+
+/* keyframe for floating effect */
+@keyframes float {
+    0%, 100% { transform: translateY(0) }
+    50% { transform: translateY(-15px) }
+}
+
+/* card styling (initially hidden inside envelope). The card is a
+   3D object that will rotate on the X axis. We start it flat and
+   reveal it with an animation once the envelope opens. */
+.card {
+    width: 190px;
+    height: 260px;
+    position: absolute;
+    top: 130px; /* just below envelope body */
+    left: 50%;
+    transform: translate(-50%, 0) rotateX(90deg); /* start flat */
+    transform-style: preserve-3d;
+    background: #fff;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    border-radius: 6px;
+    transition: transform 0.6s ease;
+    display: none; /* hide until envelope opened */
+}
+
+.card.show {
+    display: block;
+}
+
+.card .front, .card .inside {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.card .front {
+    background: linear-gradient(135deg, #ffe0b2 0%, #ffccbc 100%);
+    border-radius: 6px;
+    transform: rotateX(0deg);
+}
+
+.card .inside {
+    background: #ffffff;
+    transform: rotateX(180deg);
+    color: #333;
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* responsive adjustments */
+@media (max-width: 400px) {
+    .scene { width: 240px; height: 320px; }
+    .envelope { width: 160px; height: 96px; }
+    .card { width: 152px; height: 208px; }
+}

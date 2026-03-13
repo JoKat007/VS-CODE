@@ -146,7 +146,7 @@ html, body {
     height: 80px;
     transform: scale(0) translateZ(0); /* starts collapsed */
     transform-origin: center bottom;
-    transition: transform 0.8s ease;
+    /* remove transition since JS controls it */
 }
 
 .inside-panel.open .pop-up-cake {
